@@ -28,8 +28,29 @@ impl Game {
         }
         if self.snake.is_touching_food(&self.food) {
             self.snake.eat_food(&self.food);
+            self.food_counter = 0;
             self.food = Food::new(self.screen_height, self.screen_width);
         }
+    }
+
+    pub fn snake_about_to_collide(&self, next_step: &Coord) -> bool {
+        self.snake.body.contains(next_step) || 
+        [0, self.screen_height].contains(&self.snake.body.front().unwrap().y()) || 
+        [0, self.screen_width].contains(&self.snake.body.front().unwrap().x())
+    }
+
+    pub fn get_next_step(&self) -> Coord {
+        let (y, x) = match self.snake.direction {
+            Direction::Up => (-1, 0),
+            Direction::Down => (1, 0),
+            Direction::Left => (0, -1),
+            Direction::Right => (0, 1)
+        };
+        let next_step = Coord {
+            y: self.snake.body.front().unwrap().y + y,
+            x: self.snake.body.front().unwrap().x + x
+        };
+        next_step
     }
 
     pub fn snake(&mut self) -> &mut Snake {
@@ -67,21 +88,22 @@ impl Snake {
     }
 
     pub fn set_direction(&mut self, direction: Direction) {
-        self.direction = direction;
+        if direction != self.forbidden_direction(&self.direction) {
+            self.direction = direction;
+        }
     }
 
-    pub fn crawl(&mut self) {
-        let (y, x) = match self.direction {
-            Direction::Up => (-1, 0),
-            Direction::Down => (1, 0),
-            Direction::Left => (0, -1),
-            Direction::Right => (0, 1)
-        };
-        let next_step = Coord {
-            y: self.body.front().unwrap().y + y,
-            x: self.body.front().unwrap().x + x
-        };
-        self.body.push_front(next_step);
+    fn forbidden_direction(&self, direction: &Direction) -> Direction {
+        match direction {
+            Direction::Up => Direction::Down,
+            Direction::Down => Direction::Up,
+            Direction::Left => Direction::Right,
+            Direction::Right => Direction::Left
+        }
+    }
+
+    pub fn crawl(&mut self, next_step: &Coord) {
+        self.body.push_front(*next_step);
         self.body.pop_back();
     }
 
@@ -106,8 +128,8 @@ impl Food {
     fn new(y: i32, x: i32) -> Food {
         let mut rng = rand::thread_rng();
         Food { 
-            y: rng.gen_range(0, y),
-            x: rng.gen_range(0, x)
+            y: rng.gen_range(1, y - 1),
+            x: rng.gen_range(1, x - 1)
         }
     }
 
@@ -120,6 +142,7 @@ impl Food {
     }
 }
 
+#[derive(Copy, Clone, PartialEq)]
 pub struct Coord {
     x: i32,
     y: i32
@@ -139,6 +162,7 @@ impl Coord {
     }   
 }
 
+#[derive(PartialEq)]
 pub enum Direction {
     Up,
     Down,

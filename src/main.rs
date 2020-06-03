@@ -10,19 +10,31 @@ fn main() {
     keypad(stdscr(), true);
     timeout(100);
 
-    let mut game = core::Game::new(LINES(), COLS() / 2);
-    game.snake().init_body(LINES() / 2, COLS() / 4);
+    let inner_screen = ui::create_playground();
+    let (screen_height, screen_width) = (getmaxy(inner_screen), getmaxx(inner_screen));
+
+    let mut game = core::Game::new(screen_height, screen_width / 2);
+    game.snake().init_body(screen_height / 2, screen_width / 4);
 
     loop {
         erase();
+        werase(inner_screen);
+        box_(inner_screen, 0, 0);
 
-        ui::draw_snake(&game.snake());
+        ui::draw_snake(&game.snake(), inner_screen);
         game.handle_food();
-        ui::draw_food(&game.food());
+        ui::draw_food(&game.food(), inner_screen);
 
         refresh();
+        wrefresh(inner_screen);
 
-        game.snake().crawl();
+        let next_step = game.get_next_step();
+
+        if !game.snake_about_to_collide(&next_step) {
+            game.snake().crawl(&next_step);
+        } else {
+            break;
+        }
 
         let user_input = getch();
         match user_input {
