@@ -25,11 +25,13 @@ impl Game {
         if self.food_counter == 100 {
             self.food_counter = 0;
             self.food = Food::new(self.screen_height, self.screen_width);
+            self.food.position_properly(&self.snake, self.screen_height, self.screen_width);
         }
         if self.snake.is_touching_food(&self.food) {
             self.snake.eat_food(&self.food);
             self.food_counter = 0;
             self.food = Food::new(self.screen_height, self.screen_width);
+            self.food.position_properly(&self.snake, self.screen_height, self.screen_width);
         }
     }
 
@@ -125,11 +127,11 @@ pub struct Food {
 }
 
 impl Food {
-    fn new(y: i32, x: i32) -> Food {
+    fn new(screen_height: i32, screen_width: i32) -> Food {
         let mut rng = rand::thread_rng();
         Food { 
-            y: rng.gen_range(1, y - 1),
-            x: rng.gen_range(1, x - 1)
+            y: rng.gen_range(1, screen_height - 1),
+            x: rng.gen_range(1, screen_width - 1)
         }
     }
 
@@ -139,6 +141,16 @@ impl Food {
 
     pub fn y(&self) -> i32 {
         self.y
+    }
+
+    pub fn position_properly(&mut self, snake: &Snake, screen_height: i32, screen_width: i32) {
+        loop {
+            if snake.body.contains(&Coord::new(self.y, self.x)) {
+                let mut rng = rand::thread_rng();
+                self.y = rng.gen_range(1, screen_height - 1);
+                self.x = rng.gen_range(1, screen_width - 1);
+            } else { break; }
+        }
     }
 }
 
