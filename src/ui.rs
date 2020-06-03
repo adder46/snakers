@@ -1,7 +1,6 @@
 use ncurses::*;
 use crate::core::{Food, Snake};
 
-
 const MIN_HEIGHT: i32 = 24;
 const MIN_WIDTH: i32 = 80;
 
@@ -12,7 +11,9 @@ pub fn draw_snake(snake: &Snake, screen: WINDOW) {
 }
 
 pub fn draw_food(food: &Food, screen: WINDOW) {
+    wattr_on(screen, COLOR_PAIR(1));
     mvwaddstr(screen, food.y(), food.x() * 2, "██");
+    wattroff(screen, COLOR_PAIR(1));
 }
 
 pub fn create_playground() -> WINDOW {
@@ -22,4 +23,9 @@ pub fn create_playground() -> WINDOW {
         (COLS() / 2) - (MIN_WIDTH / 2)
     );
     inner_screen
+}
+
+pub fn init_color_pairs() {
+    start_color();
+    init_pair(1, COLOR_RED, COLOR_RED);
 }

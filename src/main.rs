@@ -9,6 +9,7 @@ fn main() {
     curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
     keypad(stdscr(), true);
     timeout(100);
+    ui::init_color_pairs();
 
     let inner_screen = ui::create_playground();
     let (screen_height, screen_width) = (getmaxy(inner_screen), getmaxx(inner_screen));

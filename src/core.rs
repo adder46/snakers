@@ -93,15 +93,6 @@ impl Snake {
         }
     }
 
-    fn forbidden_direction(&self, direction: &Direction) -> Direction {
-        match direction {
-            Direction::Up => Direction::Down,
-            Direction::Down => Direction::Up,
-            Direction::Left => Direction::Right,
-            Direction::Right => Direction::Left
-        }
-    }
-
     pub fn crawl(&mut self, next_step: &Coord) {
         self.body.push_front(*next_step);
         self.body.pop_back();
@@ -116,6 +107,15 @@ impl Snake {
         self.body.push_front(
             Coord::new(food.y(), food.x())
         );
+    }
+
+    fn forbidden_direction(&self, direction: &Direction) -> Direction {
+        match direction {
+            Direction::Up => Direction::Down,
+            Direction::Down => Direction::Up,
+            Direction::Left => Direction::Right,
+            Direction::Right => Direction::Left
+        }
     }
 }
 
