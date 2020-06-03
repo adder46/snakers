@@ -12,11 +12,11 @@ pub struct Game {
 impl Game {
     pub fn new(screen_height: i32, screen_width: i32) -> Game {
         Game { 
+            screen_height,
+            screen_width,
             food_counter: 0,
             food: Food::new(screen_height, screen_width),
-            snake: Snake::new(),
-            screen_height,
-            screen_width
+            snake: Snake::new()
         }
     }
 
@@ -24,6 +24,10 @@ impl Game {
         self.food_counter += 1;
         if self.food_counter == 100 {
             self.food_counter = 0;
+            self.food = Food::new(self.screen_height, self.screen_width);
+        }
+        if self.snake.is_touching_food(&self.food) {
+            self.snake.eat_food(&self.food);
             self.food = Food::new(self.screen_height, self.screen_width);
         }
     }
@@ -53,7 +57,7 @@ impl Snake {
     pub fn init_body(&mut self, y: i32, x: i32) {
         for i in -3..4 {
             self.body.push_front(
-                Coord { y, x: x + i }
+                Coord::new(y, x + i)
             );
         }
     }
@@ -79,6 +83,17 @@ impl Snake {
         };
         self.body.push_front(next_step);
         self.body.pop_back();
+    }
+
+    pub fn is_touching_food(&self, food: &Food) -> bool {
+        self.body.front().unwrap().y() == food.y() &&
+        self.body.front().unwrap().x() == food.x()
+    }
+
+    pub fn eat_food(&mut self, food: &Food) {
+        self.body.push_front(
+            Coord::new(food.y(), food.x())
+        );
     }
 }
 
@@ -111,6 +126,10 @@ pub struct Coord {
 }
 
 impl Coord {
+    pub fn new(y: i32, x: i32) -> Coord {
+        Coord { y, x }
+    }
+
     pub fn x(&self) -> i32 {
         self.x
     }
