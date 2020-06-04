@@ -48,10 +48,10 @@ impl Game {
             Direction::Left => (0, -1),
             Direction::Right => (0, 1)
         };
-        let next_step = Coord {
-            y: self.snake.body.front().unwrap().y + y,
-            x: self.snake.body.front().unwrap().x + x
-        };
+        let next_step = Coord::new(
+            self.snake.body.front().unwrap().y + y,
+            self.snake.body.front().unwrap().x + x
+        );
         next_step
     }
 
