@@ -1,44 +1,47 @@
-use std::collections::VecDeque;
 use rand::Rng;
+use std::collections::VecDeque;
+
+use crate::ui::{PLAYGROUND_HEIGHT, PLAYGROUND_WIDTH};
 
 pub struct Game {
-    screen_height: i32,
-    screen_width: i32,
-    food_counter: i32,
-    food: Food,
-    snake: Snake
+    pub food_counter: i32,
+    pub food: Food,
+    pub snake: Snake,
 }
 
 impl Game {
-    pub fn new(screen_height: i32, screen_width: i32) -> Game {
-        Game { 
-            screen_height,
-            screen_width,
+    pub fn new() -> Game {
+        Game {
             food_counter: 0,
-            food: Food::new(screen_height, screen_width),
-            snake: Snake::new()
+            food: Food::new(),
+            snake: Snake::new(),
+        }
+    }
+
+    pub fn init_snake(&mut self) {
+        for i in -3..4 {
+            self.snake.body.push_front(Coord::new(
+                PLAYGROUND_HEIGHT / 2,
+                (PLAYGROUND_WIDTH / 4) + i,
+            ));
         }
     }
 
     pub fn handle_food(&mut self) {
         self.food_counter += 1;
         if self.food_counter == 100 {
-            self.food_counter = 0;
-            self.food = Food::new(self.screen_height, self.screen_width);
-            self.food.position_properly(&self.snake, self.screen_height, self.screen_width);
+            self.make_new_food();
         }
         if self.snake.is_touching_food(&self.food) {
             self.snake.eat_food(&self.food);
-            self.food_counter = 0;
-            self.food = Food::new(self.screen_height, self.screen_width);
-            self.food.position_properly(&self.snake, self.screen_height, self.screen_width);
+            self.make_new_food();
         }
     }
 
     pub fn snake_about_to_collide(&self, next_step: &Coord) -> bool {
-        self.snake.body.contains(next_step) || 
-        [0, self.screen_height].contains(&self.snake.body.front().unwrap().y()) || 
-        [0, self.screen_width].contains(&self.snake.body.front().unwrap().x())
+        self.snake.body.contains(next_step)
+            || [0, PLAYGROUND_HEIGHT].contains(&self.snake.body.front().unwrap().y())
+            || [0, PLAYGROUND_WIDTH].contains(&self.snake.body.front().unwrap().x())
     }
 
     pub fn get_next_step(&self) -> Coord {
@@ -46,42 +49,32 @@ impl Game {
             Direction::Up => (-1, 0),
             Direction::Down => (1, 0),
             Direction::Left => (0, -1),
-            Direction::Right => (0, 1)
+            Direction::Right => (0, 1),
         };
         let next_step = Coord::new(
             self.snake.body.front().unwrap().y + y,
-            self.snake.body.front().unwrap().x + x
+            self.snake.body.front().unwrap().x + x,
         );
         next_step
     }
 
-    pub fn snake(&mut self) -> &mut Snake {
-        &mut self.snake
-    }
-
-    pub fn food(&mut self) -> &mut Food {
-        &mut self.food
+    fn make_new_food(&mut self) {
+        self.food_counter = 0;
+        self.food = Food::new();
+        self.food.position_properly(&self.snake);
     }
 }
 
 pub struct Snake {
     body: VecDeque<Coord>,
-    direction: Direction
+    direction: Direction,
 }
 
 impl Snake {
     fn new() -> Snake {
         Snake {
             body: VecDeque::new(),
-            direction: Direction::Right
-        }
-    }
-
-    pub fn init_body(&mut self, y: i32, x: i32) {
-        for i in -3..4 {
-            self.body.push_front(
-                Coord::new(y, x + i)
-            );
+            direction: Direction::Right,
         }
     }
 
@@ -101,14 +94,11 @@ impl Snake {
     }
 
     pub fn is_touching_food(&self, food: &Food) -> bool {
-        self.body.front().unwrap().y() == food.y() &&
-        self.body.front().unwrap().x() == food.x()
+        self.body.front().unwrap().y() == food.y() && self.body.front().unwrap().x() == food.x()
     }
 
     pub fn eat_food(&mut self, food: &Food) {
-        self.body.push_front(
-            Coord::new(food.y(), food.x())
-        );
+        self.body.push_front(Coord::new(food.y(), food.x()));
     }
 
     fn forbidden_direction(&self, direction: &Direction) -> Direction {
@@ -116,22 +106,22 @@ impl Snake {
             Direction::Up => Direction::Down,
             Direction::Down => Direction::Up,
             Direction::Left => Direction::Right,
-            Direction::Right => Direction::Left
+            Direction::Right => Direction::Left,
         }
     }
 }
 
 pub struct Food {
     x: i32,
-    y: i32
+    y: i32,
 }
 
 impl Food {
-    fn new(screen_height: i32, screen_width: i32) -> Food {
+    fn new() -> Food {
         let mut rng = rand::thread_rng();
-        Food { 
-            y: rng.gen_range(1, screen_height - 1),
-            x: rng.gen_range(1, screen_width - 1)
+        Food {
+            y: rng.gen_range(1, PLAYGROUND_HEIGHT - 1),
+            x: rng.gen_range(1, (PLAYGROUND_WIDTH / 2) - 1),
         }
     }
 
@@ -143,13 +133,15 @@ impl Food {
         self.y
     }
 
-    pub fn position_properly(&mut self, snake: &Snake, screen_height: i32, screen_width: i32) {
+    pub fn position_properly(&mut self, snake: &Snake) {
         loop {
             if snake.body.contains(&Coord::new(self.y, self.x)) {
                 let mut rng = rand::thread_rng();
-                self.y = rng.gen_range(1, screen_height - 1);
-                self.x = rng.gen_range(1, screen_width - 1);
-            } else { break; }
+                self.y = rng.gen_range(1, PLAYGROUND_HEIGHT - 1);
+                self.x = rng.gen_range(1, (PLAYGROUND_WIDTH / 2) - 1);
+            } else {
+                break;
+            }
         }
     }
 }
@@ -157,7 +149,7 @@ impl Food {
 #[derive(Copy, Clone, PartialEq)]
 pub struct Coord {
     x: i32,
-    y: i32
+    y: i32,
 }
 
 impl Coord {
@@ -171,7 +163,7 @@ impl Coord {
 
     pub fn y(&self) -> i32 {
         self.y
-    }   
+    }
 }
 
 #[derive(PartialEq)]
@@ -179,5 +171,5 @@ pub enum Direction {
     Up,
     Down,
     Left,
-    Right
+    Right,
 }
