@@ -3,6 +3,9 @@ use ncurses::*;
 mod core;
 mod ui;
 
+const KEY_P: i32 = 112;
+const KEY_R: i32 = 114;
+
 fn main() {
     setlocale(LcCategory::all, "");
     initscr();
@@ -24,6 +27,7 @@ fn main() {
         ui::draw_snake(inner_screen, &game.snake);
         game.handle_food();
         ui::draw_food(inner_screen, &game.food);
+        ui::draw_score(inner_screen, game.score);
 
         refresh();
         wrefresh(inner_screen);
@@ -31,7 +35,7 @@ fn main() {
         let next_step = game.get_next_step();
 
         if !game.snake_about_to_collide(&next_step) {
-            game.snake.crawl(&next_step);
+            game.snake.crawl(&next_step, game.paused);
         } else {
             break;
         }
@@ -50,6 +54,12 @@ fn main() {
             }
             KEY_RIGHT => {
                 game.snake.set_direction(core::Direction::Right);
+            }
+            KEY_P => {
+                game.paused = !game.paused;
+            }
+            KEY_R => {
+                game.restart();
             }
             _ => {}
         };

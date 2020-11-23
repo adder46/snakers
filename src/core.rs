@@ -4,17 +4,21 @@ use std::collections::VecDeque;
 use crate::ui::{PLAYGROUND_HEIGHT, PLAYGROUND_WIDTH};
 
 pub struct Game {
-    pub food_counter: i32,
-    pub food: Food,
     pub snake: Snake,
+    pub food: Food,
+    pub food_counter: i32,
+    pub score: i32,
+    pub paused: bool,
 }
 
 impl Game {
     pub fn new() -> Game {
         Game {
-            food_counter: 0,
-            food: Food::new(),
             snake: Snake::new(),
+            food: Food::new(),
+            food_counter: 0,
+            score: 0,
+            paused: false,
         }
     }
 
@@ -34,6 +38,7 @@ impl Game {
         }
         if self.snake.is_touching_food(&self.food) {
             self.snake.eat_food(&self.food);
+            self.score += 1;
             self.make_new_food();
         }
     }
@@ -56,6 +61,15 @@ impl Game {
             self.snake.body.front().unwrap().x + x,
         );
         next_step
+    }
+
+    pub fn restart(&mut self) {
+        self.snake = Snake::new();
+        self.init_snake();
+        self.food = Food::new();
+        self.food_counter = 0;
+        self.score = 0;
+        self.paused = false;
     }
 
     fn make_new_food(&mut self) {
@@ -88,9 +102,11 @@ impl Snake {
         }
     }
 
-    pub fn crawl(&mut self, next_step: &Coord) {
-        self.body.push_front(*next_step);
-        self.body.pop_back();
+    pub fn crawl(&mut self, next_step: &Coord, paused: bool) {
+        if !paused == true {
+            self.body.push_front(*next_step);
+            self.body.pop_back();
+        }
     }
 
     pub fn is_touching_food(&self, food: &Food) -> bool {
