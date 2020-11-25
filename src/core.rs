@@ -4,8 +4,8 @@ use std::collections::VecDeque;
 use crate::ui::{PLAYGROUND_HEIGHT, PLAYGROUND_WIDTH};
 
 pub struct Game {
-    pub snake: Snake,
     pub food: Food,
+    pub snake: Box<Snake>,
     pub food_counter: i32,
     pub score: i32,
     pub paused: bool,
@@ -13,9 +13,10 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Game {
+        let snake = Box::new(Snake::new());
         Game {
-            snake: Snake::new(),
-            food: Food::new(),
+            food: Food::new(&snake),
+            snake,
             food_counter: 0,
             score: 0,
             paused: false,
@@ -46,7 +47,7 @@ impl Game {
     pub fn snake_about_to_collide(&self, next_step: &Coord) -> bool {
         self.snake.body.contains(next_step)
             || [0, PLAYGROUND_HEIGHT].contains(&self.snake.body.front().unwrap().y())
-            || [0, PLAYGROUND_WIDTH].contains(&self.snake.body.front().unwrap().x())
+            || [0, PLAYGROUND_WIDTH / 2].contains(&self.snake.body.front().unwrap().x())
     }
 
     pub fn get_next_step(&self) -> Coord {
@@ -64,9 +65,9 @@ impl Game {
     }
 
     pub fn restart(&mut self) {
-        self.snake = Snake::new();
+        self.snake = Box::new(Snake::new());
         self.init_snake();
-        self.food = Food::new();
+        self.food = Food::new(&self.snake);
         self.food_counter = 0;
         self.score = 0;
         self.paused = false;
@@ -74,8 +75,7 @@ impl Game {
 
     fn make_new_food(&mut self) {
         self.food_counter = 0;
-        self.food = Food::new();
-        self.food.position_properly(&self.snake);
+        self.food = Food::new(&self.snake);
     }
 }
 
@@ -133,11 +133,17 @@ pub struct Food {
 }
 
 impl Food {
-    fn new() -> Food {
+    fn new(snake: &Box<Snake>) -> Food {
         let mut rng = rand::thread_rng();
-        Food {
-            y: rng.gen_range(1, PLAYGROUND_HEIGHT - 1),
-            x: rng.gen_range(1, (PLAYGROUND_WIDTH / 2) - 1),
+        loop {
+            let y = rng.gen_range(1, PLAYGROUND_HEIGHT - 1);
+            let x = rng.gen_range(1, (PLAYGROUND_WIDTH / 2) - 1);
+
+            if snake.body.contains(&Coord::new(y, x)) {
+                continue;
+            } else {
+                return Food { y, x };
+            }
         }
     }
 
@@ -147,18 +153,6 @@ impl Food {
 
     pub fn y(&self) -> i32 {
         self.y
-    }
-
-    pub fn position_properly(&mut self, snake: &Snake) {
-        loop {
-            if snake.body.contains(&Coord::new(self.y, self.x)) {
-                let mut rng = rand::thread_rng();
-                self.y = rng.gen_range(1, PLAYGROUND_HEIGHT - 1);
-                self.x = rng.gen_range(1, (PLAYGROUND_WIDTH / 2) - 1);
-            } else {
-                break;
-            }
-        }
     }
 }
 
