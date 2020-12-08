@@ -27,7 +27,7 @@ pub fn draw_snake(screen: WINDOW, snake: &Snake) {
 
 pub fn draw_food(screen: WINDOW, food: &Food) {
     wattr_on(screen, COLOR_PAIR(1));
-    mvwaddstr(screen, food.y, food.x * 2, "██");
+    mvwaddstr(screen, food.coord.y, food.coord.x * 2, "██");
     wattroff(screen, COLOR_PAIR(1));
 }
 

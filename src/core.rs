@@ -51,17 +51,14 @@ impl Game {
     }
 
     pub fn get_next_step(&self) -> Coord {
-        let (y, x) = match self.snake.direction {
+        let Coord { y, x } = self.snake.body.front().unwrap();
+        let (next_y, next_x) = match self.snake.direction {
             Direction::Up => (-1, 0),
             Direction::Down => (1, 0),
             Direction::Left => (0, -1),
             Direction::Right => (0, 1),
         };
-        let next_step = Coord::new(
-            self.snake.body.front().unwrap().y + y,
-            self.snake.body.front().unwrap().x + x,
-        );
-        next_step
+        Coord::new(y + next_y, x + next_x)
     }
 
     pub fn restart(&mut self) {
@@ -99,18 +96,18 @@ impl Snake {
     }
 
     pub fn crawl(&mut self, next_step: &Coord, paused: bool) {
-        if !paused == true {
+        if !paused {
             self.body.push_front(*next_step);
             self.body.pop_back();
         }
     }
 
     pub fn is_touching_food(&self, food: &Food) -> bool {
-        self.body.front().unwrap().y == food.y && self.body.front().unwrap().x == food.x
+        *self.body.front().unwrap() == food.coord
     }
 
     pub fn eat_food(&mut self, food: &Food) {
-        self.body.push_front(Coord::new(food.y, food.x));
+        self.body.push_front(food.coord);
     }
 
     fn forbidden_direction(&self, direction: &Direction) -> Direction {
@@ -123,9 +120,9 @@ impl Snake {
     }
 }
 
+#[derive(PartialEq)]
 pub struct Food {
-    pub y: i32,
-    pub x: i32,
+    pub coord: Coord,
 }
 
 impl Food {
@@ -134,11 +131,12 @@ impl Food {
         loop {
             let y = rng.gen_range(1, PLAYGROUND_HEIGHT - 1);
             let x = rng.gen_range(1, (PLAYGROUND_WIDTH / 2) - 1);
-
             if snake.body.contains(&Coord::new(y, x)) {
                 continue;
             } else {
-                return Food { y, x };
+                return Food {
+                    coord: Coord::new(y, x),
+                };
             }
         }
     }
