@@ -46,8 +46,8 @@ impl Game {
 
     pub fn snake_about_to_collide(&self, next_step: &Coord) -> bool {
         self.snake.body.contains(next_step)
-            || [0, PLAYGROUND_HEIGHT].contains(&self.snake.body.front().unwrap().y())
-            || [0, PLAYGROUND_WIDTH / 2].contains(&self.snake.body.front().unwrap().x())
+            || [0, PLAYGROUND_HEIGHT].contains(&self.snake.body.front().unwrap().y)
+            || [0, PLAYGROUND_WIDTH / 2].contains(&self.snake.body.front().unwrap().x)
     }
 
     pub fn get_next_step(&self) -> Coord {
@@ -80,7 +80,7 @@ impl Game {
 }
 
 pub struct Snake {
-    body: VecDeque<Coord>,
+    pub body: VecDeque<Coord>,
     direction: Direction,
 }
 
@@ -90,10 +90,6 @@ impl Snake {
             body: VecDeque::new(),
             direction: Direction::Right,
         }
-    }
-
-    pub fn body(&self) -> &VecDeque<Coord> {
-        &self.body
     }
 
     pub fn set_direction(&mut self, direction: Direction) {
@@ -110,11 +106,11 @@ impl Snake {
     }
 
     pub fn is_touching_food(&self, food: &Food) -> bool {
-        self.body.front().unwrap().y() == food.y() && self.body.front().unwrap().x() == food.x()
+        self.body.front().unwrap().y == food.y && self.body.front().unwrap().x == food.x
     }
 
     pub fn eat_food(&mut self, food: &Food) {
-        self.body.push_front(Coord::new(food.y(), food.x()));
+        self.body.push_front(Coord::new(food.y, food.x));
     }
 
     fn forbidden_direction(&self, direction: &Direction) -> Direction {
@@ -128,8 +124,8 @@ impl Snake {
 }
 
 pub struct Food {
-    x: i32,
-    y: i32,
+    pub y: i32,
+    pub x: i32,
 }
 
 impl Food {
@@ -146,33 +142,17 @@ impl Food {
             }
         }
     }
-
-    pub fn x(&self) -> i32 {
-        self.x
-    }
-
-    pub fn y(&self) -> i32 {
-        self.y
-    }
 }
 
 #[derive(Copy, Clone, PartialEq)]
 pub struct Coord {
-    x: i32,
-    y: i32,
+    pub y: i32,
+    pub x: i32,
 }
 
 impl Coord {
     pub fn new(y: i32, x: i32) -> Coord {
         Coord { y, x }
-    }
-
-    pub fn x(&self) -> i32 {
-        self.x
-    }
-
-    pub fn y(&self) -> i32 {
-        self.y
     }
 }
 

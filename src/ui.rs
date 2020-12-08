@@ -20,14 +20,14 @@ pub fn init_color_pairs() {
 }
 
 pub fn draw_snake(screen: WINDOW, snake: &Snake) {
-    for piece in snake.body().iter() {
-        mvwaddstr(screen, piece.y(), piece.x() * 2, "██");
+    for piece in snake.body.iter() {
+        mvwaddstr(screen, piece.y, piece.x * 2, "██");
     }
 }
 
 pub fn draw_food(screen: WINDOW, food: &Food) {
     wattr_on(screen, COLOR_PAIR(1));
-    mvwaddstr(screen, food.y(), food.x() * 2, "██");
+    mvwaddstr(screen, food.y, food.x * 2, "██");
     wattroff(screen, COLOR_PAIR(1));
 }
 
