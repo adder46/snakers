@@ -5,7 +5,7 @@ use crate::ui::{PLAYGROUND_HEIGHT, PLAYGROUND_WIDTH};
 
 pub struct Game {
     pub food: Food,
-    pub snake: Box<Snake>,
+    pub snake: Snake,
     pub food_counter: i32,
     pub score: i32,
     pub paused: bool,
@@ -13,7 +13,7 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Game {
-        let snake = Box::new(Snake::new());
+        let snake = Snake::new();
         Game {
             food: Food::new(&snake),
             snake,
@@ -62,7 +62,7 @@ impl Game {
     }
 
     pub fn restart(&mut self) {
-        self.snake = Box::new(Snake::new());
+        self.snake = Snake::new();
         self.init_snake();
         self.food = Food::new(&self.snake);
         self.food_counter = 0;
@@ -126,7 +126,7 @@ pub struct Food {
 }
 
 impl Food {
-    fn new(snake: &Box<Snake>) -> Food {
+    fn new(snake: &Snake) -> Food {
         let mut rng = rand::thread_rng();
         loop {
             let y = rng.gen_range(1, PLAYGROUND_HEIGHT - 1);
