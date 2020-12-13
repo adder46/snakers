@@ -46,7 +46,7 @@ impl Game {
 
     pub fn snake_about_to_collide(&self, next_step: &Coord) -> bool {
         self.snake.body.contains(next_step)
-            || [0, PLAYGROUND_HEIGHT].contains(&self.snake.body.front().unwrap().y)
+            || [0, PLAYGROUND_HEIGHT - 1].contains(&self.snake.body.front().unwrap().y)
             || [0, PLAYGROUND_WIDTH / 2].contains(&self.snake.body.front().unwrap().x)
     }
 

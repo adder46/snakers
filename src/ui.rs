@@ -1,38 +1,38 @@
 use crate::core::{Food, Snake};
-use ncurses::*;
+use ncurses as nc;
 
-pub const PLAYGROUND_HEIGHT: i32 = 24;
+pub const PLAYGROUND_HEIGHT: i32 = 20;
 pub const PLAYGROUND_WIDTH: i32 = 80;
 
-pub fn create_playground() -> WINDOW {
-    let inner_screen = newwin(
+pub fn create_playground() -> nc::WINDOW {
+    let inner_screen = nc::newwin(
         PLAYGROUND_HEIGHT,
         PLAYGROUND_WIDTH,
-        (LINES() - PLAYGROUND_HEIGHT) / 2,
-        (COLS() - PLAYGROUND_WIDTH) / 2,
+        (nc::LINES() - PLAYGROUND_HEIGHT) / 2,
+        (nc::COLS() - PLAYGROUND_WIDTH) / 2,
     );
     inner_screen
 }
 
 pub fn init_color_pairs() {
-    start_color();
-    init_pair(1, COLOR_RED, COLOR_RED);
+    nc::start_color();
+    nc::init_pair(1, nc::COLOR_RED, nc::COLOR_RED);
 }
 
-pub fn draw_snake(screen: WINDOW, snake: &Snake) {
+pub fn draw_snake(screen: nc::WINDOW, snake: &Snake) {
     for piece in snake.body.iter() {
-        mvwaddstr(screen, piece.y, piece.x * 2, "██");
+        nc::mvwaddstr(screen, piece.y, piece.x * 2, "██");
     }
 }
 
-pub fn draw_food(screen: WINDOW, food: &Food) {
-    wattr_on(screen, COLOR_PAIR(1));
-    mvwaddstr(screen, food.coord.y, food.coord.x * 2, "██");
-    wattroff(screen, COLOR_PAIR(1));
+pub fn draw_food(screen: nc::WINDOW, food: &Food) {
+    nc::wattr_on(screen, nc::COLOR_PAIR(1));
+    nc::mvwaddstr(screen, food.coord.y, food.coord.x * 2, "██");
+    nc::wattroff(screen, nc::COLOR_PAIR(1));
 }
 
-pub fn draw_score(screen: WINDOW, score: i32) {
-    mvwaddstr(
+pub fn draw_score(screen: nc::WINDOW, score: i32) {
+    nc::mvwaddstr(
         screen,
         PLAYGROUND_HEIGHT - 1,
         2,

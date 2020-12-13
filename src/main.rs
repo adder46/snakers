@@ -1,4 +1,4 @@
-use ncurses::*;
+use ncurses as nc;
 
 mod core;
 mod ui;
@@ -7,11 +7,11 @@ const KEY_P: i32 = 112;
 const KEY_R: i32 = 114;
 
 fn main() {
-    setlocale(LcCategory::all, "");
-    initscr();
-    curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
-    keypad(stdscr(), true);
-    timeout(100);
+    nc::setlocale(nc::LcCategory::all, "");
+    nc::initscr();
+    nc::curs_set(nc::CURSOR_VISIBILITY::CURSOR_INVISIBLE);
+    nc::keypad(nc::stdscr(), true);
+    nc::timeout(100);
     ui::init_color_pairs();
 
     let inner_screen = ui::create_playground();
@@ -20,17 +20,17 @@ fn main() {
     game.init_snake();
 
     loop {
-        erase();
-        werase(inner_screen);
-        box_(inner_screen, 0, 0);
+        nc::erase();
+        nc::werase(inner_screen);
+        nc::box_(inner_screen, 0, 0);
 
         ui::draw_snake(inner_screen, &game.snake);
         game.handle_food();
         ui::draw_food(inner_screen, &game.food);
         ui::draw_score(inner_screen, game.score);
 
-        refresh();
-        wrefresh(inner_screen);
+        nc::refresh();
+        nc::wrefresh(inner_screen);
 
         let next_step = game.get_next_step();
 
@@ -40,19 +40,19 @@ fn main() {
             break;
         }
 
-        let user_input = getch();
+        let user_input = nc::getch();
 
         match user_input {
-            KEY_UP => {
+            nc::KEY_UP => {
                 game.snake.set_direction(core::Direction::Up);
             }
-            KEY_DOWN => {
+            nc::KEY_DOWN => {
                 game.snake.set_direction(core::Direction::Down);
             }
-            KEY_LEFT => {
+            nc::KEY_LEFT => {
                 game.snake.set_direction(core::Direction::Left);
             }
-            KEY_RIGHT => {
+            nc::KEY_RIGHT => {
                 game.snake.set_direction(core::Direction::Right);
             }
             KEY_P => {
@@ -64,5 +64,5 @@ fn main() {
             _ => {}
         };
     }
-    endwin();
+    nc::endwin();
 }
