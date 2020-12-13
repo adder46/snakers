@@ -20,6 +20,12 @@ snake
 
 ## Development
 
+You will need curses libraries:
+
+```
+sudo apt install libncurses5 libncurses5-dev
+```
+
 Fork the repository, and make sure to run `clippy` and `rustfmt` before submitting a PR. There are no tests at this moment as this is mostly a toy project.
 
 ## Licensing
