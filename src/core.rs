@@ -1,5 +1,6 @@
 use rand::Rng;
 use std::collections::VecDeque;
+use std::ops::Add;
 
 use crate::ui::{PLAYGROUND_HEIGHT, PLAYGROUND_WIDTH};
 
@@ -51,14 +52,14 @@ impl Game {
     }
 
     pub fn get_next_step(&self) -> Coord {
-        let Coord { y, x } = self.snake.body.front().unwrap();
-        let (next_y, next_x) = match self.snake.direction {
-            Direction::Up => (-1, 0),
-            Direction::Down => (1, 0),
-            Direction::Left => (0, -1),
-            Direction::Right => (0, 1),
+        let head = self.snake.body.front().unwrap();
+        let next_step = match self.snake.direction {
+            Direction::Up => Coord::new(-1, 0),
+            Direction::Down => Coord::new(1, 0),
+            Direction::Left => Coord::new(0, -1),
+            Direction::Right => Coord::new(0, 1),
         };
-        Coord::new(y + next_y, x + next_x)
+        *head + next_step
     }
 
     pub fn restart(&mut self) {
@@ -142,7 +143,7 @@ impl Food {
     }
 }
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Coord {
     pub y: i32,
     pub x: i32,
@@ -154,10 +155,42 @@ impl Coord {
     }
 }
 
+impl Add for Coord {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
 #[derive(PartialEq)]
 pub enum Direction {
     Up,
     Down,
     Left,
     Right,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rstest::rstest;
+
+    #[rstest(
+        direction, next_step,
+        case(Direction::Up, Coord::new(-1, 0)),
+        case(Direction::Down, Coord::new(1, 0)),
+        case(Direction::Left, Coord::new(0, 1)),
+        case(Direction::Right, Coord::new(0, 1)),
+    )]
+    fn get_next_step(direction: Direction, next_step: Coord) {
+        let mut game = Game::new();
+        game.init_snake();
+        game.snake.set_direction(direction);
+        let head = game.snake.body.front().unwrap();
+        assert_eq!(game.get_next_step(), *head + next_step);
+    }
 }
