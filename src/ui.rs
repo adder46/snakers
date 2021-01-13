@@ -5,13 +5,12 @@ pub const PLAYGROUND_HEIGHT: i32 = 20;
 pub const PLAYGROUND_WIDTH: i32 = 80;
 
 pub fn create_playground() -> nc::WINDOW {
-    let inner_screen = nc::newwin(
+    nc::newwin(
         PLAYGROUND_HEIGHT,
         PLAYGROUND_WIDTH,
         (nc::LINES() - PLAYGROUND_HEIGHT) / 2,
         (nc::COLS() - PLAYGROUND_WIDTH) / 2,
-    );
-    inner_screen
+    )
 }
 
 pub fn init_color_pairs() {

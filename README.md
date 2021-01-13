@@ -1,5 +1,7 @@
 # snake
 
+![build status](https://github.com/adder46/snake/workflows/build/badge.svg) [![codecov](https://codecov.io/gh/adder46/snake/branch/master/graph/badge.svg?token=PGXYCNZL49)](https://codecov.io/gh/adder46/snake)
+
 This is a snake game I made to explore Rust a bit.
 
 ## Installation and playing

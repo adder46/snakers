@@ -166,7 +166,7 @@ impl Add for Coord {
     }
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Direction {
     Up,
     Down,
@@ -192,5 +192,55 @@ mod tests {
         game.snake.set_direction(direction);
         let head = game.snake.body.front().unwrap();
         assert_eq!(game.get_next_step(), *head + next_step);
+    }
+
+    #[rstest(
+        current,
+        next,
+        expected,
+        case(Direction::Up, Direction::Left, Direction::Left),
+        case(Direction::Up, Direction::Right, Direction::Right),
+        case(Direction::Up, Direction::Up, Direction::Up),
+        case(Direction::Up, Direction::Down, Direction::Up),
+        case(Direction::Down, Direction::Left, Direction::Left),
+        case(Direction::Down, Direction::Right, Direction::Right),
+        case(Direction::Down, Direction::Down, Direction::Down),
+        case(Direction::Down, Direction::Up, Direction::Down),
+        case(Direction::Left, Direction::Up, Direction::Up),
+        case(Direction::Left, Direction::Down, Direction::Down),
+        case(Direction::Left, Direction::Left, Direction::Left),
+        case(Direction::Left, Direction::Right, Direction::Left),
+        case(Direction::Right, Direction::Up, Direction::Up),
+        case(Direction::Right, Direction::Down, Direction::Down),
+        case(Direction::Right, Direction::Right, Direction::Right),
+        case(Direction::Right, Direction::Left, Direction::Right)
+    )]
+    fn set_direction(current: Direction, next: Direction, expected: Direction) {
+        let mut snake = Snake::new();
+        snake.direction = current;
+        snake.set_direction(next);
+        assert_eq!(snake.direction, expected);
+    }
+
+    #[rstest(coord, case(Coord::new(1, 5)), case(Coord::new(9, 3)))]
+    fn eat_food(coord: Coord) {
+        let mut snake = Snake::new();
+        let mut food = Food::new(&snake);
+        food.coord = coord;
+        snake.eat_food(&food);
+        assert_eq!(snake.body.pop_front().unwrap(), food.coord);
+    }
+
+    #[rstest(
+        current,
+        forbidden,
+        case(Direction::Up, Direction::Down),
+        case(Direction::Down, Direction::Up),
+        case(Direction::Left, Direction::Right),
+        case(Direction::Right, Direction::Left)
+    )]
+    fn forbidden_direction(current: Direction, forbidden: Direction) {
+        let snake = Snake::new();
+        assert_eq!(snake.forbidden_direction(&current), forbidden);
     }
 }
