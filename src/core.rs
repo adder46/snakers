@@ -25,12 +25,12 @@ impl Game {
     }
 
     pub fn init_snake(&mut self) {
-        for i in -3..4 {
+        (-3..4).into_iter().for_each(|i| {
             self.snake.body.push_front(Coord::new(
                 PLAYGROUND_HEIGHT / 2,
                 (PLAYGROUND_WIDTH / 4) + i,
             ));
-        }
+        });
     }
 
     pub fn handle_food(&mut self) {
@@ -38,17 +38,18 @@ impl Game {
         if self.food_counter == 100 {
             self.make_new_food();
         }
-        if self.snake.is_touching_food(&self.food) {
-            self.snake.eat_food(&self.food);
+        if self.snake.is_touching_food(self.food) {
+            self.snake.eat_food(self.food);
             self.score += 1;
             self.make_new_food();
         }
     }
 
-    pub fn snake_about_to_collide(&self, next_step: &Coord) -> bool {
-        self.snake.body.contains(next_step)
-            || [0, PLAYGROUND_HEIGHT - 1].contains(&self.snake.body.front().unwrap().y)
-            || [0, PLAYGROUND_WIDTH / 2].contains(&self.snake.body.front().unwrap().x)
+    pub fn snake_about_to_collide(&self, next_step: Coord) -> bool {
+        let head = self.snake.body.front().unwrap();
+        self.snake.body.contains(&next_step)
+            || [0, PLAYGROUND_HEIGHT - 1].contains(&head.y)
+            || [0, PLAYGROUND_WIDTH / 2].contains(&head.x)
     }
 
     pub fn get_next_step(&self) -> Coord {
@@ -91,27 +92,27 @@ impl Snake {
     }
 
     pub fn set_direction(&mut self, direction: Direction) {
-        if direction != self.forbidden_direction(&self.direction) {
+        if direction != self.forbidden_direction(self.direction) {
             self.direction = direction;
         }
     }
 
-    pub fn crawl(&mut self, next_step: &Coord, paused: bool) {
+    pub fn crawl(&mut self, next_step: Coord, paused: bool) {
         if !paused {
-            self.body.push_front(*next_step);
+            self.body.push_front(next_step);
             self.body.pop_back();
         }
     }
 
-    pub fn is_touching_food(&self, food: &Food) -> bool {
+    pub fn is_touching_food(&self, food: Food) -> bool {
         *self.body.front().unwrap() == food.coord
     }
 
-    pub fn eat_food(&mut self, food: &Food) {
+    pub fn eat_food(&mut self, food: Food) {
         self.body.push_front(food.coord);
     }
 
-    fn forbidden_direction(&self, direction: &Direction) -> Direction {
+    fn forbidden_direction(&self, direction: Direction) -> Direction {
         match direction {
             Direction::Up => Direction::Down,
             Direction::Down => Direction::Up,
@@ -121,7 +122,7 @@ impl Snake {
     }
 }
 
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub struct Food {
     pub coord: Coord,
 }
@@ -166,7 +167,7 @@ impl Add for Coord {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Direction {
     Up,
     Down,
@@ -227,7 +228,7 @@ mod tests {
         let mut snake = Snake::new();
         let mut food = Food::new(&snake);
         food.coord = coord;
-        snake.eat_food(&food);
+        snake.eat_food(food);
         assert_eq!(snake.body.pop_front().unwrap(), food.coord);
     }
 
@@ -241,6 +242,6 @@ mod tests {
     )]
     fn forbidden_direction(current: Direction, forbidden: Direction) {
         let snake = Snake::new();
-        assert_eq!(snake.forbidden_direction(&current), forbidden);
+        assert_eq!(snake.forbidden_direction(current), forbidden);
     }
 }

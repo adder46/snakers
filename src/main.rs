@@ -34,8 +34,8 @@ fn main() {
 
         let next_step = game.get_next_step();
 
-        if !game.snake_about_to_collide(&next_step) {
-            game.snake.crawl(&next_step, game.paused);
+        if !game.snake_about_to_collide(next_step) {
+            game.snake.crawl(next_step, game.paused);
         } else {
             break;
         }
