@@ -25,7 +25,7 @@ impl Game {
     }
 
     pub fn init_snake(&mut self) {
-        (-3..4).into_iter().for_each(|i| {
+        (-3..4).for_each(|i| {
             self.snake.body.push_front(Coord::new(
                 PLAYGROUND_HEIGHT / 2,
                 (PLAYGROUND_WIDTH / 4) + i,
