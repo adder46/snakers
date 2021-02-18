@@ -65,6 +65,7 @@ impl Game {
     }
 }
 
+#[derive(Clone)]
 pub struct Snake {
     pub head: Coord,
     pub body: VecDeque<Coord>,
@@ -230,6 +231,25 @@ mod tests {
         food.coord = coord;
         snake.eat_food(food);
         assert_eq!(snake.head, food.coord);
+    }
+
+    #[rstest()]
+    fn is_touching_food() {
+        let snake = Snake::new();
+        let mut food = Food::new(&snake);
+        food.coord = snake.head;
+        assert!(snake.is_touching_food(food));
+    }
+
+    #[rstest()]
+    fn crawl() {
+        let mut game = Game::new();
+        let next_step = game.get_next_step();
+        let old_snake = game.snake.clone();
+        game.snake.crawl(next_step, false);
+        assert_eq!(game.snake.head, next_step);
+        assert_eq!(game.snake.body.front(), Some(&old_snake.head));
+        assert!(!game.snake.body.contains(old_snake.body.back().unwrap()));
     }
 
     #[rstest(
