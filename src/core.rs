@@ -99,7 +99,8 @@ impl Snake {
 
     pub fn crawl(&mut self, next_step: Coord, paused: bool) {
         if !paused {
-            self.body.push_front(mem::replace(&mut self.head, next_step));
+            self.body
+                .push_front(mem::replace(&mut self.head, next_step));
             self.body.pop_back();
         }
     }
@@ -109,7 +110,8 @@ impl Snake {
     }
 
     pub fn eat_food(&mut self, food: Food) {
-        self.body.push_front(mem::replace(&mut self.head, food.coord));
+        self.body
+            .push_front(mem::replace(&mut self.head, food.coord));
     }
 
     fn forbidden_direction(&self, direction: Direction) -> Direction {
