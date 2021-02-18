@@ -85,9 +85,9 @@ impl Snake {
         if let Some(coord) = coords.next_back() {
             snake.head = coord;
         }
-        for coord in coords {
+        coords.for_each(|coord| {
             snake.body.push_front(coord);
-        }
+        });
         snake
     }
 
