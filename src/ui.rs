@@ -20,9 +20,9 @@ pub fn init_color_pairs() {
 
 pub fn draw_snake(screen: nc::WINDOW, snake: &Snake) {
     nc::mvwaddstr(screen, snake.head.y, snake.head.x * 2, "██");
-    for piece in snake.body.iter() {
+    snake.body.iter().for_each(|piece| {
         nc::mvwaddstr(screen, piece.y, piece.x * 2, "██");
-    }
+    });
 }
 
 pub fn draw_food(screen: nc::WINDOW, food: &Food) {
