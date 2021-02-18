@@ -190,8 +190,7 @@ mod tests {
     fn get_next_step(direction: Direction, next_step: Coord) {
         let mut game = Game::new();
         game.snake.set_direction(direction);
-        let head = game.snake.body.front().unwrap();
-        assert_eq!(game.get_next_step(), *head + next_step);
+        assert_eq!(game.get_next_step(), game.snake.head + next_step);
     }
 
     #[rstest(
@@ -228,7 +227,7 @@ mod tests {
         let mut food = Food::new(&snake);
         food.coord = coord;
         snake.eat_food(food);
-        assert_eq!(snake.body.pop_front().unwrap(), food.coord);
+        assert_eq!(snake.head, food.coord);
     }
 
     #[rstest(
