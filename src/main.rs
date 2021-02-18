@@ -17,8 +17,6 @@ fn main() {
     let inner_screen = ui::create_playground();
     let mut game = core::Game::new();
 
-    game.init_snake();
-
     loop {
         nc::erase();
         nc::werase(inner_screen);

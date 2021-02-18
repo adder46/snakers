@@ -1,5 +1,6 @@
 use rand::Rng;
 use std::collections::VecDeque;
+use std::mem;
 use std::ops::Add;
 
 use crate::ui::{PLAYGROUND_HEIGHT, PLAYGROUND_WIDTH};
@@ -14,7 +15,9 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Game {
-        let snake = Snake::new();
+        let snake = Snake::from_coords(
+            (-3..4).map(|i| Coord::new(PLAYGROUND_HEIGHT / 2, (PLAYGROUND_WIDTH / 4) + i)),
+        );
         Game {
             food: Food::new(&snake),
             snake,
@@ -22,15 +25,6 @@ impl Game {
             score: 0,
             paused: false,
         }
-    }
-
-    pub fn init_snake(&mut self) {
-        (-3..4).for_each(|i| {
-            self.snake.body.push_front(Coord::new(
-                PLAYGROUND_HEIGHT / 2,
-                (PLAYGROUND_WIDTH / 4) + i,
-            ));
-        });
     }
 
     pub fn handle_food(&mut self) {
@@ -46,30 +40,23 @@ impl Game {
     }
 
     pub fn snake_about_to_collide(&self, next_step: Coord) -> bool {
-        let head = self.snake.body.front().unwrap();
         self.snake.body.contains(&next_step)
-            || [0, PLAYGROUND_HEIGHT - 1].contains(&head.y)
-            || [0, PLAYGROUND_WIDTH / 2].contains(&head.x)
+            || [0, PLAYGROUND_HEIGHT - 1].contains(&self.snake.head.y)
+            || [0, PLAYGROUND_WIDTH / 2].contains(&self.snake.head.x)
     }
 
     pub fn get_next_step(&self) -> Coord {
-        let head = self.snake.body.front().unwrap();
         let next_step = match self.snake.direction {
             Direction::Up => Coord::new(-1, 0),
             Direction::Down => Coord::new(1, 0),
             Direction::Left => Coord::new(0, -1),
             Direction::Right => Coord::new(0, 1),
         };
-        *head + next_step
+        self.snake.head + next_step
     }
 
     pub fn restart(&mut self) {
-        self.snake = Snake::new();
-        self.init_snake();
-        self.food = Food::new(&self.snake);
-        self.food_counter = 0;
-        self.score = 0;
-        self.paused = false;
+        *self = Self::new()
     }
 
     fn make_new_food(&mut self) {
@@ -79,6 +66,7 @@ impl Game {
 }
 
 pub struct Snake {
+    pub head: Coord,
     pub body: VecDeque<Coord>,
     direction: Direction,
 }
@@ -86,9 +74,21 @@ pub struct Snake {
 impl Snake {
     fn new() -> Snake {
         Snake {
+            head: Coord::new(0, 0),
             body: VecDeque::new(),
             direction: Direction::Right,
         }
+    }
+
+    fn from_coords(mut coords: impl DoubleEndedIterator<Item = Coord>) -> Snake {
+        let mut snake = Self::new();
+        if let Some(coord) = coords.next_back() {
+            snake.head = coord;
+        }
+        for coord in coords {
+            snake.body.push_front(coord);
+        }
+        snake
     }
 
     pub fn set_direction(&mut self, direction: Direction) {
@@ -99,17 +99,17 @@ impl Snake {
 
     pub fn crawl(&mut self, next_step: Coord, paused: bool) {
         if !paused {
-            self.body.push_front(next_step);
+            self.body.push_front(mem::replace(&mut self.head, next_step));
             self.body.pop_back();
         }
     }
 
     pub fn is_touching_food(&self, food: Food) -> bool {
-        *self.body.front().unwrap() == food.coord
+        self.head == food.coord
     }
 
     pub fn eat_food(&mut self, food: Food) {
-        self.body.push_front(food.coord);
+        self.body.push_front(mem::replace(&mut self.head, food.coord));
     }
 
     fn forbidden_direction(&self, direction: Direction) -> Direction {
@@ -189,7 +189,6 @@ mod tests {
     )]
     fn get_next_step(direction: Direction, next_step: Coord) {
         let mut game = Game::new();
-        game.init_snake();
         game.snake.set_direction(direction);
         let head = game.snake.body.front().unwrap();
         assert_eq!(game.get_next_step(), *head + next_step);
