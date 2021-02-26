@@ -24,7 +24,7 @@ fn main() {
 
         ui::draw_snake(inner_screen, &game.snake);
         game.handle_food();
-        ui::draw_food(inner_screen, &game.food);
+        ui::draw_food(inner_screen, game.food);
         ui::draw_score(inner_screen, game.score);
 
         nc::refresh();

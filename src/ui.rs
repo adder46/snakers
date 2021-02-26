@@ -25,7 +25,7 @@ pub fn draw_snake(screen: nc::WINDOW, snake: &Snake) {
     });
 }
 
-pub fn draw_food(screen: nc::WINDOW, food: &Food) {
+pub fn draw_food(screen: nc::WINDOW, food: Food) {
     nc::wattr_on(screen, nc::COLOR_PAIR(1));
     nc::mvwaddstr(screen, food.coord.y, food.coord.x * 2, "██");
     nc::wattroff(screen, nc::COLOR_PAIR(1));
