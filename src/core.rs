@@ -136,12 +136,11 @@ impl Food {
         loop {
             let y = rng.gen_range(1, PLAYGROUND_HEIGHT - 1);
             let x = rng.gen_range(1, (PLAYGROUND_WIDTH / 2) - 1);
-            if snake.body.contains(&Coord::new(y, x)) {
+            let coord = Coord::new(y, x);
+            if snake.head == coord || snake.body.contains(&coord) {
                 continue;
             } else {
-                return Food {
-                    coord: Coord::new(y, x),
-                };
+                return Food { coord };
             }
         }
     }
